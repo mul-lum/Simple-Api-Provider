@@ -1,0 +1,5 @@
+#THE BASE OF THE CONFIG FILE!
+1321 = Test/123[int]
+199658 = {
+    "data" : "test/hello"
+}
