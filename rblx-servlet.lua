@@ -1,69 +1,81 @@
---!strict
-local Models = {}
+-- created by MULLUM
+local models = {}
 local Servlet = {}
-Servlet.__index = Servlet
+setmetatable(Servlet, Servlet)
 
-local function constructor(URL : string)
-	local servletObject = {}
-	setmetatable(servletObject, Servlet)
+-- Private Variables
+local HTTPService = game:GetService("HttpService")
+
+function Servlet.new(URL : string)
+	local servletObject = setmetatable({}, {__index = Servlet})
 	
-	servletObject.URL = URL	
+	servletObject.URL = URL;
 	
-	return servletObject	
+	return servletObject
 end
 
-function Servlet:post()
-	-- post..
+-- Object Functions
+function Servlet:get() 
+	local response = HTTPService:GetAsync(self.URL)
+	
+	return HTTPService:JSONDecode(response)
 end
 
-function Servlet:postWithPath()
-	-- post with path..
+function Servlet:getWithPath(extender : string) 
+	assert(extender ~= nil, "Arguement 1 can't be nullable")
+	local URL : string = self.URL
+	local response = HTTPService:GetAsync(self.URL .. extender)
+	
+	return HTTPService:JSONDecode(response)
 end
 
-function Servlet:get()
-	-- get..
+function Servlet:post(model : {})
+	assert(model ~= nil, "Arguement 1 can't be nullable")
+	local URL : string = self.URL
+	local modelJson = HTTPService:JSONEncode(model)
+
+	local success = HTTPService:PostAsync(URL, modelJson, Enum.HttpContentType.ApplicationJson, false)
 end
 
-function Servlet:getWithPath()
-	-- get with path..
+function Servlet:postWithPath(extender :string, model : {})
+	assert(model ~= nil, "Arguement 2 can't be nullable")
+	local URL : string = self.URL
+	local modelJson = HTTPService:JSONEncode(model)
+	
+	local success = HTTPService:PostAsync(URL .. extender, modelJson, Enum.HttpContentType.ApplicationJson, false)
+	return success
 end
 
--------------------------------------------
+function Servlet:getURL()
+	return self.URL;
+end
+
+----------------------------------------------------------------------------------------------------------------------------------
+
 local JServlet = {}
 JServlet.__index = JServlet
 
-export type model = {
-	id : number,
-	variables : {},
-	functions : {},
-	name : string
-}
+JServlet.__VERSION__ = "3.2"
+JServlet.__NAME__ = "JAVA-SERVLET"
+JServlet.servlets = {}
 
-export type servletObject = {
-	servlets : {},
-}
-
-function JServlet.init(path : Instance)
-	assert(path == nil, "Path cannot be null")
-	local Servlet : servletObject  = {
-		servlets = {},
-	}
-	setmetatable(Servlet, JServlet)
+-- Functions
+function JServlet.createServlet(URL : string)
+	local servletObject = Servlet.new(URL)
 	
-	return Servlet
+	
+	JServlet.servlets[URL] = servletObject
+	return servletObject
 end
 
-function JServlet:createServlet(URL : string)
-	return constructor(URL)
+function JServlet.addModel(name : string, model : {})
+	models[name] = model
 end
 
-function JServlet:add(name : string, model : model)
-	if Models[name] ~= nil then
-		warn("Model cannot be a dupicate")
-		return
-	end
-	
-	Models[name] = model	
+function JServlet.details()
+	print("VERSION - " .. JServlet.__VERSION__ .. JServlet.__NAME__)
 end
 
 return JServlet
+
+----------------------------------------------------------------------------------------------------------------------------------
