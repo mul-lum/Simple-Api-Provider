@@ -54,7 +54,7 @@ public class DataController {
             Data obj = new Data(data);
             DATASERVICE.addData(obj);
 
-            return ResponseEntity.ok("Sucessfully set data");
+            return ResponseEntity.ok(String.valueOf(obj.getID()));
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
             return ResponseEntity.badRequest().body("Could not retrieve data");
         }
